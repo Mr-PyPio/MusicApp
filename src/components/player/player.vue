@@ -411,6 +411,7 @@
         if (this.currentShow === 'cd') {
           if (this.touch.percent > 0.1) {
             offsetWidth = -window.innerWidth
+            this.currentShow = 'lyric'
             opacity = 0
           } else {
             offsetWidth = 0

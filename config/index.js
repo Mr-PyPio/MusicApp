@@ -10,7 +10,7 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
 		// CDN地址
-    assetsPublicPath: '/',
+    assetsPublicPath: '',
     proxyTable: {},
 
     // Various Dev Server settings
