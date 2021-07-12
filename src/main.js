@@ -17,11 +17,9 @@ Vue.use(vueLazyload, {
 	loading: require('assets/image/loading.gif')
 })
 
-import cVonsole from 'vconsole'
+// import cVonsole from 'vconsole'
 
-// Vue.config.productionTip = false
-
-// console.log('test')
+Vue.config.productionTip = false
 
 // eslint-disable-next-line no-new
 new Vue({

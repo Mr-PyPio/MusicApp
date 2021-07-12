@@ -123,7 +123,7 @@
       Scroll,
       ProgressCircle,
       ProgressBar,
-			PlayList
+      PlayList
     },
     data() {
       return {
@@ -134,7 +134,7 @@
         currentLineNum: 0,
         currentShow: 'cd',
         playingLyric: '',
-				lyricReady: false
+        lyricReady: false
       }
     },
     created() {
@@ -167,7 +167,7 @@
         'currentIndex',
         'mode',
         'sequenceList',
-				'favoriteList'
+        'favoriteList'
       ])
     },
     methods: {
@@ -181,9 +181,9 @@
         if (!this.songReady || !this.lyricReady) {
           return
         }
-        if (this.playlist === 1) {
+        if (this.playlist === 1 || this.mode === playMode.loop) {
           this.loop()
-					return
+          return
         } else {
           let index = this.currentIndex - 1
           if (index === -1) {
@@ -200,9 +200,9 @@
         if (!this.songReady || !this.lyricReady) {
           return
         }
-        if (this.playlist.length === 1) {
+        if (this.playlist.length === 1 || this.mode === playMode.loop) {
           this.loop()
-					return
+          return
         } else {
           let index = this.currentIndex + 1
           if (index === this.playlist.length) {
@@ -213,11 +213,11 @@
             this.togglePlaying()
           }
         }
-				this.songReady = false
+        this.songReady = false
       },
       ready() {
         this.songReady = true
-				this.savePlayHistory(this.currentSong)
+        this.savePlayHistory(this.currentSong)
       },
       error() {
         this.songReady = true
@@ -235,7 +235,31 @@
       },
       loop() {
         this.$refs.audio.currentTime = 0
-        this.$refs.audio.play()
+        // 如果暂停状态下切换下一首
+        if (!this.playing) {
+          this.togglePlaying()
+        }
+        // 如此上一首的歌词在播放是切换下一首，暂停上一首歌词的播放
+        if (this.currentLyric) {
+          this.currentLyric.togglePlay()
+        }
+        // 清空上一首歌词
+        this.clearPrvLyric()
+        this.clearTimerAndGetLyric()
+      },
+      // 清空上一首歌词内容
+      clearPrvLyric() {
+        this.currentLyric = null
+        this.playingLyric = ''
+        this.currentLineNum = 0
+      },
+      // 清除定时器，重新获取歌词内容
+      clearTimerAndGetLyric() {
+        clearTimeout(this.timer)
+        this.timer = setTimeout(() => {
+          // 重新获取歌词
+          this._getLyric()
+        }, 1000)
       },
       // 处理时间戳
       format(interval) {
@@ -275,18 +299,18 @@
       },
       _getLyric() {
         this.currentSong.getLyric().then((lyric) => {
-					if (this.currentSong.lyric !== lyric) {
-						return
-					}
+          if (this.currentSong.lyric !== lyric) {
+            return
+          }
           this.currentLyric = new Lyric(lyric, this.handleLyric)
-					this.lyricReady = true
+          this.lyricReady = true
           if (this.playing) {
             this.currentLyric.play()
+            // 歌曲开始播放
+            this.$refs.audio.play()
           }
         }).catch(() => {
-          this.currentLyric = null
-          this.playingLyric = ''
-          this.currentLineNum = 0
+          this.clearPrvLyric()
         })
       },
       handleLyric({
@@ -409,15 +433,16 @@
         let offsetWidth
         let opacity
         if (this.currentShow === 'cd') {
-          if (this.touch.percent > 0.1) {
+          if (this.touch.percent > 0.2) {
             offsetWidth = -window.innerWidth
+            this.currentShow = 'lyric'
             opacity = 0
           } else {
             offsetWidth = 0
             opacity = 1
           }
         } else {
-          if (this.touch.percent < 0.9) {
+          if (this.touch.percent < 0.8) {
             offsetWidth = 0
             this.currentShow = 'cd'
             opacity = 1
@@ -432,33 +457,33 @@
         this.$refs.middleL.style.opacity = opacity
         this.$refs.middleL.style[transitionDuration] = `${time}ms`
       },
-			showPlayList() {
-				this.$refs.playList.show()
-			},
-			toggleFavorite(item) {
+      showPlayList() {
+        this.$refs.playList.show()
+      },
+      toggleFavorite(item) {
         if (this.isFavorite(item)) {
           this.deleteFavoriteSong(item)
         } else {
           this.saveFavoriteSong(item)
         }
       },
-			getFavoriteIcon(item) {
+      getFavoriteIcon(item) {
         if (this.isFavorite(item)) {
           return 'icon-favorite'
         }
         return 'icon-not-favorite'
       },
-			isFavorite(song) {
+      isFavorite(song) {
         const index = this.favoriteList.findIndex(item => {
-					return item.id === song.id
-				})
-				return index > -1
+          return item.id === song.id
+        })
+        return index > -1
       },
-			...mapActions([
-				'savePlayHistory',
-				'saveFavoriteSong',
-				'deleteFavoriteSong'
-			]),
+      ...mapActions([
+        'savePlayHistory',
+        'saveFavoriteSong',
+        'deleteFavoriteSong'
+      ]),
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayingState: 'SET_PLAYING_STATE',
@@ -469,25 +494,19 @@
     },
     watch: {
       currentSong(newSong, oldSong) {
-				if (!newSong.id) {
-					return
-				}
+        if (!newSong.id) {
+          return
+        }
         if (newSong.id === oldSong.id) {
           return
         }
-				this.songReady = false
-				this.lyricReady = false
-				if (this.currentLyric) {
-					this.currentLyric.stop()
-					this.currentTime = 0
-					this.playingLyric = ''
-					this.currentLineNum = 0
-				}
-				clearTimeout(this.timer)
-        this.timer = setTimeout(() => {
-          this.$refs.audio.play()
-          this._getLyric()
-        }, 1000)
+        this.songReady = false
+        this.lyricReady = false
+        if (this.currentLyric) {
+          this.currentLyric.stop()
+          this.clearPrvLyric()
+        }
+        this.clearTimerAndGetLyric()
       },
       playing(newPlaying) {
         this.$nextTick(() => {
