@@ -2,11 +2,10 @@ import { commonParams } from './config'
 import axios from 'axios'
 import { getUid } from 'assets/js/uid'
 
-// const debug = process.env.NODE_ENV !== 'production'
+const debug = process.env.NODE_ENV !== 'production'
 
 export function getLyric (mid) {
-	const url = '/api/lyric'
-	// const url = debug ? '/api/lyric' : 'http://39.108.104.144/music/api/lyric'
+	const url = debug ? '/api/lyric' : 'http://39.108.104.144/music/api/lyric'
   const data = Object.assign({}, commonParams, {
     songmid: mid,
     platform: 'yqq',
@@ -26,8 +25,7 @@ export function getLyric (mid) {
 }
 
 export function getSongsUrl (songs) {
-	const url = '/api/getPurlUrl'
-	// const url = debug ? '/api/getPurlUrl' : 'http://39.108.104.144/music/api/getPurlUrl'
+	const url = debug ? '/api/getPurlUrl' : 'http://39.108.104.144/music/api/getPurlUrl'
   let mids = []
   let types = []
 

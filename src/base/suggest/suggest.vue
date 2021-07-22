@@ -1,6 +1,6 @@
 <template>
-  <scroll ref="suggest" class="suggest" :data="result" :pullup="pullup" :beforeScroll="beforeScroll"
-    @scrollToEnd="searchMore" @beforeScroll="listScroll">
+  <scroll ref="suggest" class="suggest" :data="result" :pullup="pullup" :beforeScroll="beforeScroll" :probeType='probeType'
+    @scrollToEnd="searchMore" @beforeScroll="listScroll" >
     <ul class="suggest-list">
       <li @click="selectItem(item)" class="suggest-item" v-for="(item, index) in result" :key="index">
         <div class="icon">
@@ -53,7 +53,8 @@
         pullup: true,
         hasMore: false,
         page: 1,
-        beforeScroll: true
+        beforeScroll: true,
+				probeType: 3
       }
     },
     methods: {
@@ -73,6 +74,7 @@
             this._checkMore(res.data)
           }
         })
+				this.refresh()
       },
       selectItem(item) {
         if (item.type === TYPE_SINGER) {
@@ -117,6 +119,7 @@
             this._checkMore(res.data)
           }
         })
+				this.refresh()
       },
       _genResult(data) {
         let ret = []

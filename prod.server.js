@@ -129,9 +129,8 @@ app.get('/api/getCdInfo', function(req, res) {
 		})
 })
 app.get('/api/search', function(req, res) {
-	var url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
-	axios
-		.get(url, {
+	var url = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp'
+	axios.get(url, {
 			headers: {
 				referer: 'https://c.y.qq.com/',
 				host: 'c.y.qq.com'
