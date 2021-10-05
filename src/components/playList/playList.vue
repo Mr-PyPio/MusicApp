@@ -26,7 +26,7 @@
         <div class="list-operate">
           <div @click="addSong" class="add">
             <i class="icon-add"></i>
-            <span class="text">添加歌曲到队列</span>
+            <span class="text">添加歌曲到队列)</span>
           </div>
         </div>
         <div @click="hide" class="list-close">
